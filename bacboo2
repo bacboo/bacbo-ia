@@ -1,0 +1,74 @@
+import streamlit as st
+import random
+import matplotlib.pyplot as plt
+
+# Título
+st.title("🎲 IA de Entradas para Bac Bo")
+
+# Área para inserir resultados
+resultados = st.text_area("Digite os últimos resultados (um por linha):", 
+"""
+Player
+Player
+Banker
+Player
+Empate
+Player
+Banker
+Player
+""")
+
+# Processar os resultados
+lista = [r.strip().title() for r in resultados.splitlines() if r.strip()]
+
+# Contagem de resultados
+player_wins = lista.count("Player")
+banker_wins = lista.count("Banker")
+empates = lista.count("Empate")
+
+# Exibição dos resultados
+st.write(f"📊 Total de rodadas: {len(lista)}")
+st.write(f"🧍‍♂️ Player: {player_wins}")
+st.write(f"🏦 Banker: {banker_wins}")
+st.write(f"🤝 Empates: {empates}")
+
+# Probabilidade de vitória
+total_rounds = len(lista)
+if total_rounds > 0:
+    player_prob = player_wins / total_rounds
+    banker_prob = banker_wins / total_rounds
+    empate_prob = empates / total_rounds
+else:
+    player_prob = banker_prob = empate_prob = 0
+
+# Exibindo as probabilidades
+st.write(f"📉 Probabilidade de vitória - Player: {player_prob*100:.2f}%")
+st.write(f"📉 Probabilidade de vitória - Banker: {banker_prob*100:.2f}%")
+st.write(f"📉 Probabilidade de Empate: {empate_prob*100:.2f}%")
+
+# Visualização gráfica
+st.subheader("📊 Gráfico de Vitória vs Empate vs Banker")
+labels = ['Player', 'Banker', 'Empate']
+sizes = [player_wins, banker_wins, empates]
+colors = ['#ff9999','#66b3ff','#99ff99']
+
+fig, ax = plt.subplots()
+ax.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+st.pyplot(fig)
+
+# Últimos resultados para sugerir entradas
+ultimos = lista[-3:]
+sugestao = ""
+
+# Lógica de sugestão com base nos últimos 3 resultados
+if ultimos.count("Player") == 3:
+    sugestao = "⚠️ **Três vitórias seguidas do Player. Aposte no BANKER!**"
+elif ultimos.count("Banker") == 3:
+    sugestao = "⚠️ **Três vitórias seguidas do Banker. Aposte no PLAYER!**"
+elif "Empate" in ultimos:
+    sugestao = "🚫 **Empate recente. Melhor aguardar uma entrada mais segura.**"
+else:
+    # Lógica baseada na probabilidade de 80%
+    if player_prob >= 0.80:
+        sugestao = "🔥 **Aposte em PLAYER! Probabilidade de**
